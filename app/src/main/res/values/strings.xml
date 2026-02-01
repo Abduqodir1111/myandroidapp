@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyAPPAndroid</string>
+    <string name="app_name">QFamily</string>
     <string name="title_main">Древо семьи</string>
     <string name="title_main_root">Древо семьи: %1$s</string>
     <string name="add_person">Добавить человека</string>

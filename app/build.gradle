@@ -9,11 +9,11 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace 'com.example.myappandroid'
+    namespace 'com.abduqodir.qfamily'
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.example.myappandroid'
+        applicationId 'com.abduqodir.qfamily'
         minSdk 24
         targetSdk 35
         versionCode 1
@@ -68,3 +68,4 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
+
