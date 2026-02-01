@@ -3,4 +3,12 @@
     <color name="purple_700">#3700B3</color>
     <color name="teal_200">#03DAC5</color>
     <color name="white">#FFFFFF</color>
+    <color name="avatar_placeholder">#5A67D8</color>
+    <color name="tree_line_color">#B0B0B0</color>
+    <color name="tree_node_color">#5A67D8</color>
+    <color name="tree_halo_color">#4053D8</color>
+    <color name="tree_initials_color">#FFFFFF</color>
+    <color name="tree_name_color">#222222</color>
+    <color name="tree_plus_color">#FFFFFF</color>
+    <color name="tree_plus_icon_color">#5A67D8</color>
 </resources>

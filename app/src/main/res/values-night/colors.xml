@@ -1,0 +1,9 @@
+<resources>
+    <color name="tree_name_color">#FFFFFF</color>
+    <color name="tree_line_color">#6B6B6B</color>
+    <color name="tree_node_color">#7C8CFF</color>
+    <color name="tree_halo_color">#9AA5FF</color>
+    <color name="avatar_placeholder">#7C8CFF</color>
+    <color name="tree_plus_color">#1F1F1F</color>
+    <color name="tree_plus_icon_color">#9AA5FF</color>
+</resources>

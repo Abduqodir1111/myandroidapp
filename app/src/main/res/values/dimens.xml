@@ -1,4 +1,13 @@
 <resources>
     <dimen name="tree_item_padding">12dp</dimen>
     <dimen name="tree_indent">24dp</dimen>
+    <dimen name="tree_spacing_x">180dp</dimen>
+    <dimen name="tree_spacing_y">200dp</dimen>
+    <dimen name="tree_node_radius">28dp</dimen>
+    <dimen name="tree_line_width">2dp</dimen>
+    <dimen name="tree_halo_width">3dp</dimen>
+    <dimen name="tree_initials_size">14sp</dimen>
+    <dimen name="tree_name_size">14sp</dimen>
+    <dimen name="tree_plus_radius">10dp</dimen>
+    <dimen name="tree_plus_stroke">2dp</dimen>
 </resources>

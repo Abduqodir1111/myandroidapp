@@ -12,19 +12,27 @@ public class Person {
     @NonNull
     public String firstName;
 
+    @NonNull
     public String lastName;
 
+    @NonNull
     public String middleName;
 
-    public String origin;
-
-    public Integer birthYear;
+    public Long birthDate;
 
     public String photoUri;
 
-    public Long motherId;
+    public String gender;
 
     public Long fatherId;
+
+    public Long motherId;
+
+    public Long spouseId;
+
+    public Long createdAt;
+
+    public Long updatedAt;
 
     public boolean isRoot;
 }
