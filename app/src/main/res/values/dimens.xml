@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="tree_item_padding">12dp</dimen>
+    <dimen name="tree_indent">24dp</dimen>
+</resources>

@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">MyAPPAndroid</string>
+    <string name="title_main">Древо семьи</string>
+    <string name="title_main_root">Древо семьи: %1$s</string>
+    <string name="add_person">Добавить человека</string>
+    <string name="name_hint">Имя</string>
+    <string name="last_name_hint">Фамилия</string>
+    <string name="middle_name_hint">Отчество</string>
+    <string name="birth_year_hint">Год рождения</string>
+    <string name="age_inline">Возраст: %1$d</string>
+    <string name="age_unknown">Возраст: —</string>
+    <string name="origin_hint">Откуда произошёл(а) / происхождение</string>
+    <string name="mother_label">Мама</string>
+    <string name="father_label">Папа</string>
+    <string name="save">Сохранить</string>
+    <string name="ancestors_title">Предки</string>
+    <string name="descendants_title">Потомки</string>
+    <string name="no_data">Нет данных</string>
+    <string name="origin_label">Происхождение</string>
+    <string name="parent_unknown">Не указано</string>
+    <string name="child_label">Ребёнок</string>
+    <string name="empty_list">Пока нет людей. Нажмите «Добавить человека».</string>
+    <string name="no_ancestors">Пока нет предков. Добавьте маму и папу.</string>
+    <string name="mother_line">Мама: %1$s</string>
+    <string name="father_line">Папа: %1$s</string>
+    <string name="origin_line">Происхождение: %1$s</string>
+    <string name="birth_year_line">Год рождения: %1$s</string>
+    <string name="birth_year_and_age_line">Год рождения: %1$d | Возраст: %2$d</string>
+    <string name="same_parent_error">Мама и папа не могут быть одним человеком</string>
+    <string name="name_required">Введите имя</string>
+    <string name="add_photo">Добавить фото</string>
+    <string name="me_label">Я</string>
+    <string name="is_me">Это я</string>
+</resources>
