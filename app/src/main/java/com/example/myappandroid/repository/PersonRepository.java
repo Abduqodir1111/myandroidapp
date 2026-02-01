@@ -94,6 +94,31 @@ public class PersonRepository {
         });
     }
 
+    public void getChildren(long personId, RepositoryCallback<List<Person>> callback) {
+        AppDatabase.getDatabaseExecutor().execute(() -> {
+            try {
+                List<Person> children = database.personDao().getChildren(personId);
+                postSuccess(callback, children);
+            } catch (Throwable t) {
+                postError(callback, t);
+            }
+        });
+    }
+
+    public void deletePerson(long personId, RepositoryCallback<Boolean> callback) {
+        AppDatabase.getDatabaseExecutor().execute(() -> {
+            try {
+                database.personDao().clearMotherRef(personId);
+                database.personDao().clearFatherRef(personId);
+                database.personDao().clearSpouseRef(personId);
+                database.personDao().deleteById(personId);
+                postSuccess(callback, true);
+            } catch (Throwable t) {
+                postError(callback, t);
+            }
+        });
+    }
+
     public void addParentForPerson(long childId,
                                    Person parent,
                                    boolean asMother,
@@ -134,6 +159,14 @@ public class PersonRepository {
                     child.motherId = parentId;
                 } else {
                     child.fatherId = parentId;
+                }
+                Person parent = database.personDao().getById(parentId);
+                if (parent != null && parent.spouseId != null && parent.spouseId != parentId) {
+                    if (parentIsMother) {
+                        child.fatherId = parent.spouseId;
+                    } else {
+                        child.motherId = parent.spouseId;
+                    }
                 }
                 long childId = database.personDao().insert(child);
                 postSuccess(callback, childId);

@@ -33,6 +33,15 @@ public interface PersonDao {
     @Query("SELECT * FROM people WHERE motherId = :personId OR fatherId = :personId")
     List<Person> getChildren(long personId);
 
+    @Query("UPDATE people SET motherId = NULL WHERE motherId = :personId")
+    void clearMotherRef(long personId);
+
+    @Query("UPDATE people SET fatherId = NULL WHERE fatherId = :personId")
+    void clearFatherRef(long personId);
+
+    @Query("UPDATE people SET spouseId = NULL WHERE spouseId = :personId")
+    void clearSpouseRef(long personId);
+
     @Query("DELETE FROM people WHERE id = :id")
     void deleteById(long id);
 }

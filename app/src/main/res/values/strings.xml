@@ -45,4 +45,14 @@
     <string name="edit_profile">Редактировать</string>
     <string name="edit_profile_title">Редактирование профиля</string>
     <string name="save_changes">Сохранить изменения</string>
+    <string name="spouse_line">Супруг(а): %1$s</string>
+    <string name="wife_line">Жена: %1$s</string>
+    <string name="husband_line">Муж: %1$s</string>
+    <string name="spouse_already_exists">Супруг(а) уже добавлен(а)</string>
+    <string name="children_line">Дети: %1$s</string>
+    <string name="delete_profile">Удалить профиль</string>
+    <string name="delete_profile_confirm">Удалить профиль «%1$s»?</string>
+    <string name="delete_profile_root_confirm">Удалить главного человека? После удаления откроется онбординг.</string>
+    <string name="delete_action">Удалить</string>
+    <string name="cancel">Отмена</string>
 </resources>

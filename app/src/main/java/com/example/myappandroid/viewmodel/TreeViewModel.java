@@ -124,12 +124,15 @@ public class TreeViewModel extends AndroidViewModel {
         Map<Long, TreeNode> nodesById = new HashMap<>();
         Map<Integer, List<TreeNode>> levelMap = new HashMap<>();
         List<TreeEdge> edges = new ArrayList<>();
+        Set<String> edgeKeys = new HashSet<>();
 
         addNode(nodesById, levelMap, root, 0);
 
-        buildAncestors(root, personMap, nodesById, levelMap, edges);
-        buildDescendants(root, childrenMap, nodesById, levelMap, edges);
-        addSpouses(personMap, nodesById, levelMap, edges);
+        buildAncestors(root, personMap, nodesById, levelMap, edges, edgeKeys);
+        buildDescendants(root, childrenMap, nodesById, levelMap, edges, edgeKeys);
+        addSpouses(personMap, nodesById, levelMap, edges, edgeKeys);
+        buildAncestorsForExistingNodes(personMap, nodesById, levelMap, edges, edgeKeys);
+        addExplicitParentEdges(nodesById, edges, edgeKeys);
 
         Resources resources = getApplication().getResources();
         float spacingX = resources.getDimension(R.dimen.tree_spacing_x);
@@ -153,7 +156,8 @@ public class TreeViewModel extends AndroidViewModel {
                                 Map<Long, Person> personMap,
                                 Map<Long, TreeNode> nodesById,
                                 Map<Integer, List<TreeNode>> levelMap,
-                                List<TreeEdge> edges) {
+                                List<TreeEdge> edges,
+                                Set<String> edgeKeys) {
         Queue<PersonLevel> queue = new ArrayDeque<>();
         Set<Long> visited = new HashSet<>();
         queue.add(new PersonLevel(root, 0));
@@ -169,7 +173,7 @@ public class TreeViewModel extends AndroidViewModel {
                 Person mother = personMap.get(person.motherId);
                 if (mother != null) {
                     addNode(nodesById, levelMap, mother, current.level - 1);
-                    edges.add(new TreeEdge(mother.id, person.id));
+                    addEdge(edges, edgeKeys, mother.id, person.id);
                     if (visited.add(mother.id)) {
                         queue.add(new PersonLevel(mother, current.level - 1));
                     }
@@ -179,7 +183,7 @@ public class TreeViewModel extends AndroidViewModel {
                 Person father = personMap.get(person.fatherId);
                 if (father != null) {
                     addNode(nodesById, levelMap, father, current.level - 1);
-                    edges.add(new TreeEdge(father.id, person.id));
+                    addEdge(edges, edgeKeys, father.id, person.id);
                     if (visited.add(father.id)) {
                         queue.add(new PersonLevel(father, current.level - 1));
                     }
@@ -192,7 +196,8 @@ public class TreeViewModel extends AndroidViewModel {
                                   Map<Long, List<Person>> childrenMap,
                                   Map<Long, TreeNode> nodesById,
                                   Map<Integer, List<TreeNode>> levelMap,
-                                  List<TreeEdge> edges) {
+                                  List<TreeEdge> edges,
+                                  Set<String> edgeKeys) {
         Queue<PersonLevel> queue = new ArrayDeque<>();
         Set<Long> visited = new HashSet<>();
         queue.add(new PersonLevel(root, 0));
@@ -209,7 +214,7 @@ public class TreeViewModel extends AndroidViewModel {
             }
             for (Person child : children) {
                 addNode(nodesById, levelMap, child, current.level + 1);
-                edges.add(new TreeEdge(current.person.id, child.id));
+                addEdge(edges, edgeKeys, current.person.id, child.id);
                 if (visited.add(child.id)) {
                     queue.add(new PersonLevel(child, current.level + 1));
                 }
@@ -220,7 +225,8 @@ public class TreeViewModel extends AndroidViewModel {
     private void addSpouses(Map<Long, Person> personMap,
                             Map<Long, TreeNode> nodesById,
                             Map<Integer, List<TreeNode>> levelMap,
-                            List<TreeEdge> edges) {
+                            List<TreeEdge> edges,
+                            Set<String> edgeKeys) {
         Set<String> spouseEdges = new HashSet<>();
         List<TreeNode> snapshot = new ArrayList<>(nodesById.values());
 
@@ -272,7 +278,62 @@ public class TreeViewModel extends AndroidViewModel {
 
             String key = spouseEdgeKey(person.id, spousePerson.id);
             if (spouseEdges.add(key)) {
-                edges.add(new TreeEdge(person.id, spousePerson.id));
+                addEdge(edges, edgeKeys, person.id, spousePerson.id);
+            }
+        }
+    }
+
+    private void buildAncestorsForExistingNodes(Map<Long, Person> personMap,
+                                                Map<Long, TreeNode> nodesById,
+                                                Map<Integer, List<TreeNode>> levelMap,
+                                                List<TreeEdge> edges,
+                                                Set<String> edgeKeys) {
+        List<TreeNode> snapshot = new ArrayList<>(nodesById.values());
+        for (TreeNode node : snapshot) {
+            if (node.person == null) {
+                continue;
+            }
+            buildAncestorsFromNode(node.person, node.level, personMap, nodesById, levelMap, edges, edgeKeys);
+        }
+    }
+
+    private void buildAncestorsFromNode(Person start,
+                                        int startLevel,
+                                        Map<Long, Person> personMap,
+                                        Map<Long, TreeNode> nodesById,
+                                        Map<Integer, List<TreeNode>> levelMap,
+                                        List<TreeEdge> edges,
+                                        Set<String> edgeKeys) {
+        Queue<PersonLevel> queue = new ArrayDeque<>();
+        Set<Long> visited = new HashSet<>();
+        queue.add(new PersonLevel(start, startLevel));
+        visited.add(start.id);
+
+        while (!queue.isEmpty()) {
+            PersonLevel current = queue.poll();
+            if (current.level <= -MAX_UP_LEVELS) {
+                continue;
+            }
+            Person person = current.person;
+            if (person.motherId != null) {
+                Person mother = personMap.get(person.motherId);
+                if (mother != null) {
+                    addNode(nodesById, levelMap, mother, current.level - 1);
+                    addEdge(edges, edgeKeys, mother.id, person.id);
+                    if (visited.add(mother.id)) {
+                        queue.add(new PersonLevel(mother, current.level - 1));
+                    }
+                }
+            }
+            if (person.fatherId != null) {
+                Person father = personMap.get(person.fatherId);
+                if (father != null) {
+                    addNode(nodesById, levelMap, father, current.level - 1);
+                    addEdge(edges, edgeKeys, father.id, person.id);
+                    if (visited.add(father.id)) {
+                        queue.add(new PersonLevel(father, current.level - 1));
+                    }
+                }
             }
         }
     }
@@ -295,6 +356,23 @@ public class TreeViewModel extends AndroidViewModel {
         levelMap.computeIfAbsent(level, key -> new ArrayList<>()).add(node);
     }
 
+    private void addExplicitParentEdges(Map<Long, TreeNode> nodesById,
+                                        List<TreeEdge> edges,
+                                        Set<String> edgeKeys) {
+        for (TreeNode node : nodesById.values()) {
+            Person person = node.person;
+            if (person == null) {
+                continue;
+            }
+            if (person.motherId != null && nodesById.containsKey(person.motherId)) {
+                addEdge(edges, edgeKeys, person.motherId, person.id);
+            }
+            if (person.fatherId != null && nodesById.containsKey(person.fatherId)) {
+                addEdge(edges, edgeKeys, person.fatherId, person.id);
+            }
+        }
+    }
+
     private void alignChildrenBetweenParents(Map<Long, TreeNode> nodesById,
                                              Map<Long, Person> personMap) {
         Map<String, List<TreeNode>> childrenByParents = new HashMap<>();
@@ -314,17 +392,36 @@ public class TreeViewModel extends AndroidViewModel {
 
         for (Map.Entry<String, List<TreeNode>> entry : childrenByParents.entrySet()) {
             List<TreeNode> children = entry.getValue();
-            if (children == null || children.size() != 1) {
+            if (children == null || children.isEmpty()) {
                 continue;
             }
-            TreeNode child = children.get(0);
-            Person person = child.person;
+            TreeNode sampleChild = children.get(0);
+            Person person = sampleChild.person;
+            if (person == null) {
+                continue;
+            }
             TreeNode motherNode = nodesById.get(person.motherId);
             TreeNode fatherNode = nodesById.get(person.fatherId);
             if (motherNode == null || fatherNode == null) {
                 continue;
             }
-            child.x = (motherNode.x + fatherNode.x) / 2f;
+            float leftX = Math.min(motherNode.x, fatherNode.x);
+            float rightX = Math.max(motherNode.x, fatherNode.x);
+            if (children.size() == 1) {
+                children.get(0).x = (leftX + rightX) / 2f;
+                continue;
+            }
+            children.sort((a, b) -> Float.compare(a.x, b.x));
+            float spacing = (rightX - leftX) / (children.size() + 1f);
+            if (spacing == 0f) {
+                for (TreeNode child : children) {
+                    child.x = leftX;
+                }
+                continue;
+            }
+            for (int i = 0; i < children.size(); i++) {
+                children.get(i).x = leftX + spacing * (i + 1);
+            }
         }
     }
 
@@ -338,6 +435,13 @@ public class TreeViewModel extends AndroidViewModel {
         long min = Math.min(firstId, secondId);
         long max = Math.max(firstId, secondId);
         return min + ":" + max;
+    }
+
+    private void addEdge(List<TreeEdge> edges, Set<String> edgeKeys, long fromId, long toId) {
+        String key = spouseEdgeKey(fromId, toId);
+        if (edgeKeys.add(key)) {
+            edges.add(new TreeEdge(fromId, toId));
+        }
     }
 
     private static class PersonLevel {

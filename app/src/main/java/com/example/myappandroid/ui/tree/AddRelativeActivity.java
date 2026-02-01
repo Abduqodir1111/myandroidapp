@@ -202,15 +202,7 @@ public class AddRelativeActivity extends AppCompatActivity {
             layoutFirstName.setError(getString(R.string.error_required));
             valid = false;
         }
-        if (ValidationUtils.isBlank(lastName)) {
-            layoutLastName.setError(getString(R.string.error_required));
-            valid = false;
-        }
-        if (ValidationUtils.isBlank(middleName)) {
-            layoutMiddleName.setError(getString(R.string.error_required));
-            valid = false;
-        }
-        if (!ValidationUtils.isValidBirthDate(selectedDate)) {
+        if (selectedDate != null && !ValidationUtils.isValidBirthDate(selectedDate)) {
             layoutBirthDate.setError(getString(R.string.error_birth_date));
             valid = false;
         }

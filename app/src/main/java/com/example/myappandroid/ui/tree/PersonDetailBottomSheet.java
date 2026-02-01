@@ -17,11 +17,14 @@ import com.example.myappandroid.repository.RepositoryCallback;
 import com.example.myappandroid.util.DateUtils;
 import com.example.myappandroid.util.InitialsUtils;
 import com.example.myappandroid.util.PersonFormatter;
+import com.example.myappandroid.util.Prefs;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.time.LocalDate;
 
 public class PersonDetailBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_PERSON_ID = "person_id";
+    private PersonRepository repository;
 
     public static PersonDetailBottomSheet newInstance(long personId) {
         PersonDetailBottomSheet sheet = new PersonDetailBottomSheet();
@@ -47,7 +50,7 @@ public class PersonDetailBottomSheet extends BottomSheetDialogFragment {
             dismiss();
             return;
         }
-        PersonRepository repository = new PersonRepository(requireContext());
+        repository = new PersonRepository(requireContext());
         repository.getPersonById(personId, new RepositoryCallback<Person>() {
             @Override
             public void onComplete(Person person) {
@@ -71,7 +74,10 @@ public class PersonDetailBottomSheet extends BottomSheetDialogFragment {
         TextView textName = view.findViewById(R.id.textName);
         TextView textBirth = view.findViewById(R.id.textBirth);
         TextView textAge = view.findViewById(R.id.textAge);
+        TextView textSpouse = view.findViewById(R.id.textSpouse);
+        TextView textChildren = view.findViewById(R.id.textChildren);
         Button buttonEdit = view.findViewById(R.id.buttonEdit);
+        Button buttonDelete = view.findViewById(R.id.buttonDelete);
 
         boolean loaded = false;
         if (person.photoUri != null && !person.photoUri.trim().isEmpty()) {
@@ -114,11 +120,111 @@ public class PersonDetailBottomSheet extends BottomSheetDialogFragment {
             textAge.setText(R.string.age_unknown);
         }
 
+        textSpouse.setVisibility(View.GONE);
+        textChildren.setVisibility(View.GONE);
+        bindRelations(person, textSpouse, textChildren);
+
         buttonEdit.setOnClickListener(v -> {
             if (getContext() != null) {
                 startActivity(new android.content.Intent(getContext(), EditPersonActivity.class)
                         .putExtra(EditPersonActivity.EXTRA_PERSON_ID, person.id));
                 dismiss();
+            }
+        });
+
+        buttonDelete.setOnClickListener(v -> showDeleteConfirm(person));
+    }
+
+    private void bindRelations(Person person, TextView textSpouse, TextView textChildren) {
+        if (person == null || repository == null) {
+            return;
+        }
+        if (person.spouseId != null) {
+            repository.getPersonById(person.spouseId, new RepositoryCallback<Person>() {
+                @Override
+                public void onComplete(Person spouse) {
+                    if (!isAdded() || spouse == null) {
+                        return;
+                    }
+                    String name = PersonFormatter.getFullName(spouse);
+                    if (!name.isEmpty()) {
+                        textSpouse.setText(getString(R.string.spouse_line, name));
+                        textSpouse.setVisibility(View.VISIBLE);
+                    }
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                }
+            });
+        }
+
+        repository.getChildren(person.id, new RepositoryCallback<java.util.List<Person>>() {
+            @Override
+            public void onComplete(java.util.List<Person> children) {
+                if (!isAdded() || children == null || children.isEmpty()) {
+                    return;
+                }
+                StringBuilder builder = new StringBuilder();
+                for (Person child : children) {
+                    String name = PersonFormatter.getFullName(child);
+                    if (name.isEmpty()) {
+                        continue;
+                    }
+                    if (builder.length() > 0) {
+                        builder.append(", ");
+                    }
+                    builder.append(name);
+                }
+                if (builder.length() > 0) {
+                    textChildren.setText(getString(R.string.children_line, builder.toString()));
+                    textChildren.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+            }
+        });
+    }
+
+    private void showDeleteConfirm(Person person) {
+        if (person == null || getContext() == null) {
+            return;
+        }
+        String title = person.isRoot
+                ? getString(R.string.delete_profile_root_confirm)
+                : getString(R.string.delete_profile_confirm, PersonFormatter.getFullName(person));
+        new MaterialAlertDialogBuilder(getContext(), R.style.ThemeOverlay_MyAPPAndroid_DialogAnimation)
+                .setMessage(title)
+                .setPositiveButton(R.string.delete_action, (dialog, which) -> deletePerson(person))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void deletePerson(Person person) {
+        if (person == null || repository == null) {
+            return;
+        }
+        repository.deletePerson(person.id, new RepositoryCallback<Boolean>() {
+            @Override
+            public void onComplete(Boolean result) {
+                if (!isAdded()) {
+                    return;
+                }
+                if (person.isRoot) {
+                    Prefs.setOnboardingDone(requireContext(), false);
+                    android.content.Intent intent = new android.content.Intent(requireContext(), com.example.myappandroid.ui.onboarding.OnboardingActivity.class);
+                    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                } else if (getActivity() instanceof TreeActivity) {
+                    ((TreeActivity) getActivity()).refreshTree();
+                }
+                dismiss();
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
             }
         });
     }

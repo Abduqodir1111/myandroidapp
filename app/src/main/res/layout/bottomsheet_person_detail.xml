@@ -59,12 +59,36 @@
             android:layout_marginTop="4dp"
             android:textColor="@android:color/darker_gray" />
 
+        <TextView
+            android:id="@+id/textSpouse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="@android:color/darker_gray"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textChildren"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@android:color/darker_gray"
+            android:visibility="gone" />
+
         <Button
             android:id="@+id/buttonEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/edit_profile" />
+
+        <Button
+            android:id="@+id/buttonDelete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/delete_profile"
+            android:textColor="@android:color/holo_red_dark" />
 
     </LinearLayout>
 </ScrollView>
